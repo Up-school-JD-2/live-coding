@@ -50,6 +50,4 @@ Thumbs.db
 *.wmv
 
 docker-local/out
-pom.xml
-start.sh
 docker-local/docker-compose-debug.yml
