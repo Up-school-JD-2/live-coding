@@ -4,6 +4,7 @@ import io.upschool.blog.dto.article.ArticleSaveRequest;
 import io.upschool.blog.dto.article.ArticleSaveResponse;
 import io.upschool.blog.entity.Article;
 import io.upschool.blog.entity.Author;
+import io.upschool.blog.exception.ArticleAlreadySavedException;
 import io.upschool.blog.repository.ArticleRepository;
 import io.upschool.blog.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,17 +38,13 @@ public class ArticleService {
     // isolation = Isolation.READ_UNCOMMITTED
     @Transactional
     public ArticleSaveResponse save(ArticleSaveRequest request) {
-        Author authorByReference = authorService.getReferenceById(request.getAuthorId());
-
+        checkIsArticleAlreadySaved(request);
+        // title daha önce kayıt edilmiş mi kontrol et
+//        Article article = articleRepository.findByTitleIs(request.getTitle())
+//                .orElseThrow(() -> new ArticleAlreadySavedException("Bu title'da daha önce article eklenmiş"));
+        //List<Article> byTitleIs = articleRepository.findByTitleIs(request.getTitle()); => efektif bir yöntem değil, gereksiz veri çekiyoruz.
         //authorService.save(new Author()); //asım
-        var newArticle = Article.builder()
-                .title(request.getTitle())
-                .content(request.getContent())
-                .description(request.getDescription())
-                .author(authorByReference)
-                .build();
-       var articleResponse = articleRepository.save(newArticle);
-
+        Article articleResponse = buildArticleAndSave(request);
         return ArticleSaveResponse.builder()
                 .id(articleResponse.getId())
                 .title(articleResponse.getTitle())
@@ -54,10 +52,26 @@ public class ArticleService {
                 .authorName(articleResponse.getAuthor().getName())
                 .build();
     }
-
-
     public List<Article> getAllArticle() {
         return articleRepository.findAll();
+    }
+
+    private Article buildArticleAndSave(ArticleSaveRequest request) {
+        Author authorByReference = authorService.getReferenceById(request.getAuthorId());
+        Article newArticle = Article.builder()
+                .title(request.getTitle())
+                .content(request.getContent())
+                .description(request.getDescription())
+                .author(authorByReference)
+                .build();
+        return articleRepository.save(newArticle);
+    }
+
+    private void checkIsArticleAlreadySaved(ArticleSaveRequest request) {
+        int articleCountByTitle = articleRepository.findArticleCountByTitle(request.getTitle());
+        if (articleCountByTitle > 0) {
+            throw new ArticleAlreadySavedException("Bu title'da daha önce article eklenmiş");
+        }
     }
 
 

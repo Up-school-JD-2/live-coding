@@ -1,6 +1,6 @@
 package io.upschool.blog.exception;
 
-public class ArticleSaveException extends RuntimeException{
+public class ArticleSaveException extends RuntimeException {
 
     public ArticleSaveException() {
 
