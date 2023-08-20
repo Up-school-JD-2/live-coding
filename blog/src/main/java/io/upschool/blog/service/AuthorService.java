@@ -3,7 +3,9 @@ package io.upschool.blog.service;
 import io.upschool.blog.dto.AuthorSaveRequest;
 import io.upschool.blog.dto.AuthorSaveResponse;
 import io.upschool.blog.dto.AuthorUpdateRequest;
+import io.upschool.blog.entity.Article;
 import io.upschool.blog.entity.Author;
+import io.upschool.blog.exception.AuthorNotFoundException;
 import io.upschool.blog.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -67,7 +69,11 @@ public class AuthorService {
 
     // select * from authors;
     public List<Author> getAllAuthors() {
-        return authorRepository.findAll();
+        List<Author> all = authorRepository.findAll();
+//        if (all.isEmpty()) {
+//            throw new AuthorNotFoundException("Kayıt bulunamadı");
+//        }
+        return all;
     }
 
     public Author findAuthorById(Long id) {
@@ -79,5 +85,9 @@ public class AuthorService {
         author.setActive(false);
         authorRepository.save(author);
         authorRepository.deleteById(id);
+    }
+
+    public static Author bla() {
+        return new Author();
     }
 }

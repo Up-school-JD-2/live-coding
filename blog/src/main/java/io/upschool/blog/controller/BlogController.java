@@ -34,7 +34,12 @@ public class BlogController {
     private final AuthorService authorService;
 
 
-
+// UAT User acceptance test
+    // stress test
+    // load test
+    // regression
+    // integration
+    // unit test
     @GetMapping("/authors")
     public ResponseEntity<List<Author>> getAuthors() {
         var authors = authorService.getAllAuthors();

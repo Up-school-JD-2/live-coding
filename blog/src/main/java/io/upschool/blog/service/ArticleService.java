@@ -39,11 +39,6 @@ public class ArticleService {
     @Transactional
     public ArticleSaveResponse save(ArticleSaveRequest request) {
         checkIsArticleAlreadySaved(request);
-        // title daha önce kayıt edilmiş mi kontrol et
-//        Article article = articleRepository.findByTitleIs(request.getTitle())
-//                .orElseThrow(() -> new ArticleAlreadySavedException("Bu title'da daha önce article eklenmiş"));
-        //List<Article> byTitleIs = articleRepository.findByTitleIs(request.getTitle()); => efektif bir yöntem değil, gereksiz veri çekiyoruz.
-        //authorService.save(new Author()); //asım
         Article articleResponse = buildArticleAndSave(request);
         return ArticleSaveResponse.builder()
                 .id(articleResponse.getId())
@@ -52,18 +47,21 @@ public class ArticleService {
                 .authorName(articleResponse.getAuthor().getName())
                 .build();
     }
+
     public List<Article> getAllArticle() {
+        var response = authorService.getAllAuthors();
         return articleRepository.findAll();
     }
 
     private Article buildArticleAndSave(ArticleSaveRequest request) {
         Author authorByReference = authorService.getReferenceById(request.getAuthorId());
-        Article newArticle = Article.builder()
-                .title(request.getTitle())
-                .content(request.getContent())
-                .description(request.getDescription())
-                .author(authorByReference)
-                .build();
+        var newArticle = AuthorService.bla();
+//        Article newArticle = Article.builder()
+//                .title(request.getTitle())
+//                .content(request.getContent())
+//                .description(request.getDescription())
+//                .author(authorByReference)
+//                .build();
         return articleRepository.save(newArticle);
     }
 
@@ -73,6 +71,7 @@ public class ArticleService {
             throw new ArticleAlreadySavedException("Bu title'da daha önce article eklenmiş");
         }
     }
+
 
 
 }
